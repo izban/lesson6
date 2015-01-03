@@ -1,44 +1,34 @@
 package com.example.izban.lesson5;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
-public class RSSActivity extends Activity {
+public class ChannelActivity extends Activity {
     ListView lv;
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Channel> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rss);
-        final Intent intent = new Intent(this, WebActivity.class);
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        setContentView(R.layout.activity_channel);
         lv = (ListView)findViewById(R.id.listView);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String s = ((ArrayAdapter<String>)parent.getAdapter()).getItem(position);
-                int k = s.indexOf('\n');
-                String url = s.substring(0, k);
-                intent.putExtra("url", url);
-                startActivity(intent);
-            }
-        });
+        adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_list_item_1);
+        lv.setAdapter(adapter);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my, menu);
+        getMenuInflater().inflate(R.menu.channel, menu);
         return true;
     }
 
@@ -54,7 +44,11 @@ public class RSSActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onButton1Click(View view) {
-        new Downloader(this, lv).execute();
+    public void onButtonAddChannel(View view) {
+        TextView text = (TextView)findViewById(R.id.editTextChannel);
+        String s = text.getText().toString();
+        text.setText("");
+        adapter.add(new Channel(s, s));
+        Log.d("", s + ": " + Integer.toString(adapter.getCount()));
     }
 }
