@@ -40,7 +40,6 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = ((ArrayAdapter<Channel>)parent.getAdapter()).getItem(position);
-                intent.putExtra(DatabaseHelper.CHANNELS_TITLE, channel.title);
                 intent.putExtra(DatabaseHelper.CHANNELS_LINK, channel.link);
                 startActivity(intent);
             }

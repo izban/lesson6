@@ -24,6 +24,7 @@ import java.net.URL;
 public class RSSActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>{
     ListView lv;
     ArrayAdapter<Item> adapter;
+    String channel;
     URL url;
 
     @Override
@@ -43,7 +44,8 @@ public class RSSActivity extends Activity implements LoaderManager.LoaderCallbac
             }
         });
         try {
-            url = new URL(getIntent().getStringExtra("link"));
+            channel = getIntent().getStringExtra("link");
+            url = new URL(channel);
         } catch (MalformedURLException e) {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), "invalid channel", Toast.LENGTH_SHORT).show();
@@ -73,7 +75,7 @@ public class RSSActivity extends Activity implements LoaderManager.LoaderCallbac
     }
 
     public void onButton1Click(View view) {
-        new Downloader(this, lv).execute(url);
+        new Downloader(this, lv, channel).execute(url);
     }
 
     @Override
@@ -81,7 +83,10 @@ public class RSSActivity extends Activity implements LoaderManager.LoaderCallbac
         Uri base = Uri.parse("content://" + RSSContentProvider.AUTHORITY);
         Uri uri = Uri.withAppendedPath(base, DatabaseHelper.ITEMS_TABLE_NAME);
         Log.i("", "start: " + uri.toString());
-        return new CursorLoader(this, uri, null, null, null, null);
+        String selection = DatabaseHelper.ITEMS_CHANNEL + " = \"" + channel + "\"";
+        Log.i("", selection);
+        //selection = null;
+        return new CursorLoader(this, uri, null, selection, null, null);
     }
 
     @Override
@@ -90,8 +95,11 @@ public class RSSActivity extends Activity implements LoaderManager.LoaderCallbac
             adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_1);
         }
         adapter.clear();
+        Log.i("", Integer.toString(data.getCount()));
         while (data.moveToNext()) {
-            adapter.add(DatabaseHelper.getItem(data));
+            Item item = DatabaseHelper.getItem(data);
+            //Log.i("", item.channel);
+            adapter.add(item);
         }
         adapter.notifyDataSetChanged();
     }

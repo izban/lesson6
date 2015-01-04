@@ -26,21 +26,20 @@ import java.util.ArrayList;
  */
 public class Downloader extends AsyncTask<URL, Void, Void> {
     Context context;
-    ArrayAdapter<Item> adapter;
     XmlPullParser parser;
     ListView lv;
     boolean failed;
     URL url;
+    String channel;
 
-    Downloader(Context context, ListView lv) {
+    Downloader(Context context, ListView lv, String channel) {
         this.context = context;
         this.lv = lv;
-        this.adapter = new ArrayAdapter<Item>(context, android.R.layout.simple_list_item_1);
         this.failed = false;
+        this.channel = channel;
     }
 
     void download() throws IOException, XmlPullParserException {
-        //URL url = new URL("http://bash.im/rss/");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("GET");
         connection.connect();
@@ -56,19 +55,22 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
         Log.i("", "START");
         try {
             download();
-            //adapter.clear();
             ArrayList<Item> items = new Parser(parser).parse();
             if (items.isEmpty()) {
                 throw new Exception();
             }
 
             for (int i = 0; i < items.size(); i++) {
+                items.get(i).channel = channel;
                 Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
                 ContentValues cv = new ContentValues();
                 cv.put(DatabaseHelper.ITEMS_LINK, items.get(i).link);
                 cv.put(DatabaseHelper.ITEMS_TITLE, items.get(i).title);
                 cv.put(DatabaseHelper.ITEMS_DESCRIPTION, items.get(i).description);
-                if (context.getContentResolver().query(uri, null, "link = \"" + items.get(i).link + "\"", null, null).getCount() == 0) {
+                cv.put(DatabaseHelper.ITEMS_CHANNEL, items.get(i).channel);
+                cv.put(DatabaseHelper.ITEMS_TIME, Long.toString(items.get(i).time));
+                Log.i("", cv.toString());
+                if (context.getContentResolver().query(uri, null, DatabaseHelper.ITEMS_LINK + " = \"" + items.get(i).link + "\"", null, null).getCount() == 0) {
                     Uri u = context.getContentResolver().insert(uri, cv);
                     Log.i("", u.toString());
                 } else {
@@ -76,7 +78,6 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
                 }
             }
         } catch (Exception e) {
-            adapter.clear();
             failed = true;
             Log.i("", e.getMessage());
         }

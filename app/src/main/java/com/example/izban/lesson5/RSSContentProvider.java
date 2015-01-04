@@ -41,7 +41,7 @@ public class RSSContentProvider extends ContentProvider {
                 break;
             case 1:
                 if (TextUtils.isEmpty(sortOrder)) {
-                    sortOrder = "_ID ASC";
+                    sortOrder = "time DESC";
                 }
                 sqLiteQueryBuilder.setTables(DatabaseHelper.ITEMS_TABLE_NAME);
                 break;

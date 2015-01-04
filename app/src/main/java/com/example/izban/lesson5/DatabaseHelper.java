@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String NAME = "data";
-    public static final int ver = 2;
+    public static final int ver = 4;
 
     public static final String CHANNELS_TABLE_NAME = "channels";
     public static final String CHANNELS_ID = "_ID";
@@ -28,12 +28,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String ITEMS_TITLE = "title";
     public static final String ITEMS_LINK = "link";
     public static final String ITEMS_DESCRIPTION = "description";
+    public static final String ITEMS_CHANNEL = "channel";
+    public static final String ITEMS_TIME = "time";
     public static final String ITEMS_CREATE =
             "CREATE TABLE " + ITEMS_TABLE_NAME + " (" +
                     ITEMS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     ITEMS_TITLE + " TEXT, " +
                     ITEMS_LINK + " TEXT, " +
-                    ITEMS_DESCRIPTION + " TEXT)";
+                    ITEMS_DESCRIPTION + " TEXT, " +
+                    ITEMS_CHANNEL + " TEXT, " +
+                    ITEMS_TIME + " INTEGER)";
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -61,13 +65,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     static public Channel getChannel(Cursor cursor) {
-        return new Channel(cursor.getString(cursor.getColumnIndex(CHANNELS_TITLE)),
-                           cursor.getString(cursor.getColumnIndex(CHANNELS_LINK)));
+        return new Channel(cursor.getString(cursor.getColumnIndex(CHANNELS_LINK)));
     }
 
     public static Item getItem(Cursor cursor) {
         return new Item(cursor.getString(cursor.getColumnIndex(ITEMS_LINK)),
                 cursor.getString(cursor.getColumnIndex(ITEMS_TITLE)),
-                cursor.getString(cursor.getColumnIndex(ITEMS_DESCRIPTION)));
+                cursor.getString(cursor.getColumnIndex(ITEMS_DESCRIPTION)),
+                cursor.getString(cursor.getColumnIndex(ITEMS_CHANNEL)),
+                Long.parseLong(cursor.getString(cursor.getColumnIndex(ITEMS_TIME))));
     }
 }

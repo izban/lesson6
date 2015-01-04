@@ -7,12 +7,16 @@ public class Item {
     String link;
     String title;
     String description;
+    String channel;
+    Long time;
 
     Item() {}
-    Item(String link, String title, String description) {
+    Item(String link, String title, String description, String channel, Long time) {
         this.link = link;
         this.title = title;
         this.description = description;
+        this.channel = channel;
+        this.time = time;
     }
 
     public String toString() {
