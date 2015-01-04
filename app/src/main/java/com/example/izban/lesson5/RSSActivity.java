@@ -1,8 +1,14 @@
 package com.example.izban.lesson5;
 
 import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-public class RSSActivity extends Activity {
+public class RSSActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor>{
     ListView lv;
     ArrayAdapter<Item> adapter;
     URL url;
@@ -27,6 +33,7 @@ public class RSSActivity extends Activity {
         final Intent intent = new Intent(this, WebActivity.class);
         adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_1);
         lv = (ListView)findViewById(R.id.listView);
+        lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -42,6 +49,7 @@ public class RSSActivity extends Activity {
             Toast.makeText(getApplicationContext(), "invalid channel", Toast.LENGTH_SHORT).show();
             finish();
         }
+        getLoaderManager().restartLoader(0, null, this);
     }
 
 
@@ -66,5 +74,30 @@ public class RSSActivity extends Activity {
 
     public void onButton1Click(View view) {
         new Downloader(this, lv).execute(url);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri base = Uri.parse("content://" + RSSContentProvider.AUTHORITY);
+        Uri uri = Uri.withAppendedPath(base, DatabaseHelper.ITEMS_TABLE_NAME);
+        Log.i("", "start: " + uri.toString());
+        return new CursorLoader(this, uri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (adapter == null) {
+            adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_1);
+        }
+        adapter.clear();
+        while (data.moveToNext()) {
+            adapter.add(DatabaseHelper.getItem(data));
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter = null;
     }
 }

@@ -40,8 +40,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = ((ArrayAdapter<Channel>)parent.getAdapter()).getItem(position);
-                intent.putExtra("title", channel.title);
-                intent.putExtra("link", channel.link);
+                intent.putExtra(DatabaseHelper.CHANNELS_TITLE, channel.title);
+                intent.putExtra(DatabaseHelper.CHANNELS_LINK, channel.link);
                 startActivity(intent);
             }
         });
@@ -82,11 +82,9 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
 
         Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.CHANNELS_TABLE_NAME);
         ContentValues cv = new ContentValues();
-        cv.put("title", s);
-        cv.put("link", s);
-        Log.i("", "start, " + cv.toString());
+        cv.put(DatabaseHelper.CHANNELS_TITLE, s);
+        cv.put(DatabaseHelper.CHANNELS_LINK, s);
         Uri u = getContentResolver().insert(uri, cv);
-        Log.i("", u.toString());
     }
 
     @Override
@@ -116,6 +114,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
 
     public void onButtonClearAllClick(View view) {
         Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.CHANNELS_TABLE_NAME);
+        getContentResolver().delete(uri, null, null);
+        uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
         getContentResolver().delete(uri, null, null);
     }
 }

@@ -1,6 +1,9 @@
 package com.example.izban.lesson5;
 
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.text.Html;
 import android.util.Log;
@@ -53,13 +56,24 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
         Log.i("", "START");
         try {
             download();
-            adapter.clear();
+            //adapter.clear();
             ArrayList<Item> items = new Parser(parser).parse();
-            for (int i = 0; i < items.size(); i++) {
-                adapter.add(items.get(i));
-            }
-            if (adapter.isEmpty()) {
+            if (items.isEmpty()) {
                 throw new Exception();
+            }
+
+            for (int i = 0; i < items.size(); i++) {
+                Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
+                ContentValues cv = new ContentValues();
+                cv.put(DatabaseHelper.ITEMS_LINK, items.get(i).link);
+                cv.put(DatabaseHelper.ITEMS_TITLE, items.get(i).title);
+                cv.put(DatabaseHelper.ITEMS_DESCRIPTION, items.get(i).description);
+                if (context.getContentResolver().query(uri, null, "link = \"" + items.get(i).link + "\"", null, null).getCount() == 0) {
+                    Uri u = context.getContentResolver().insert(uri, cv);
+                    Log.i("", u.toString());
+                } else {
+                    Log.i("", "already was");
+                }
             }
         } catch (Exception e) {
             adapter.clear();
@@ -77,8 +91,6 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
         } else {
             Log.i("", "OK");
         }
-        if (!adapter.isEmpty()) {
-            lv.setAdapter(adapter);
-        }
+
     }
 }
