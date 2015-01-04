@@ -9,11 +9,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 public class RSSActivity extends Activity {
     ListView lv;
     ArrayAdapter<String> adapter;
+    URL url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,13 @@ public class RSSActivity extends Activity {
                 startActivity(intent);
             }
         });
+        try {
+            url = new URL(getIntent().getStringExtra("link"));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "invalid channel", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
 
@@ -55,6 +67,6 @@ public class RSSActivity extends Activity {
     }
 
     public void onButton1Click(View view) {
-        new Downloader(this, lv).execute();
+        new Downloader(this, lv).execute(url);
     }
 }

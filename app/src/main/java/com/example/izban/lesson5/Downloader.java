@@ -14,8 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,12 +21,13 @@ import java.util.ArrayList;
 /**
  * Created by izban on 20.10.14.
  */
-public class Downloader extends AsyncTask<Void, Void, Void> {
+public class Downloader extends AsyncTask<URL, Void, Void> {
     Context context;
     ArrayAdapter<String> adapter;
     XmlPullParser parser;
     ListView lv;
     boolean failed;
+    URL url;
 
     Downloader(Context context, ListView lv) {
         this.context = context;
@@ -38,7 +37,7 @@ public class Downloader extends AsyncTask<Void, Void, Void> {
     }
 
     void download() throws IOException, XmlPullParserException {
-        URL url = new URL("http://bash.im/rss/");
+        //URL url = new URL("http://bash.im/rss/");
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("GET");
         connection.connect();
@@ -49,7 +48,8 @@ public class Downloader extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Void doInBackground(URL... params) {
+        this.url = params[0];
         Log.i("", "START");
         try {
             download();

@@ -21,11 +21,20 @@
             android:text="Add"
             android:id="@+id/buttonAddChannel"
             android:singleLine="false"
-            android:onClick="onButtonAddChannel" />
+            android:onClick="onButtonAddChannelClick" />
     </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear all cache"
+        android:id="@+id/buttonClearAll"
+        android:layout_gravity="right"
+        android:onClick="onButtonClearAllClick" />
 
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/listView" />
+
 </LinearLayout>
