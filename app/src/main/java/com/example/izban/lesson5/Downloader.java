@@ -73,7 +73,7 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         if (failed) {
-            Toast.makeText(context, "network error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "network error or not RSS page", Toast.LENGTH_SHORT).show();
         } else {
             Log.i("", "OK");
         }
