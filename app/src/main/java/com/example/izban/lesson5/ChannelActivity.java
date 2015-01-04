@@ -1,7 +1,13 @@
 package com.example.izban.lesson5;
 
 import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class ChannelActivity extends Activity {
+public class ChannelActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     ListView lv;
     ArrayAdapter<Channel> adapter;
 
@@ -50,5 +56,29 @@ public class ChannelActivity extends Activity {
         text.setText("");
         adapter.add(new Channel(s, s));
         Log.d("", s + ": " + Integer.toString(adapter.getCount()));
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri base = Uri.parse("content://" + RSSContentProvider.AUTHORITY);
+        Uri uri = Uri.withAppendedPath(base, DatabaseHelper.CHANNELS_TABLE_NAME);
+        return new CursorLoader(this, uri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (adapter == null) {
+            adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_list_item_1);
+        }
+        adapter.clear();
+        while (data.moveToNext()) {
+            adapter.add(DatabaseHelper.getChannel(data));
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter = null;
     }
 }
