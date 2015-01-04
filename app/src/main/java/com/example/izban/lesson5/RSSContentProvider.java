@@ -1,31 +1,24 @@
 package com.example.izban.lesson5;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 
 /**
  * Created by izban on 03.01.15.
  */
 public class RSSContentProvider extends ContentProvider {
-    public static final String AUTHORITY = "RSSContentProvider";
+    public static final String AUTHORITY = RSSContentProvider.class.getName();//"RSSContentProvider";
 
     private DatabaseHelper helper;
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(AUTHORITY, "channels", 0);
+        sUriMatcher.addURI(AUTHORITY, DatabaseHelper.CHANNELS_TABLE_NAME, 0);
     }
 
     @Override

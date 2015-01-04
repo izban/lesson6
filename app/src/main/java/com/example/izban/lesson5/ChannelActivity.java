@@ -2,12 +2,12 @@ package com.example.izban.lesson5;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +20,7 @@ import android.widget.TextView;
 public class ChannelActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     ListView lv;
     ArrayAdapter<Channel> adapter;
+    //RSSContentProvider provider = new RSSContentProvider();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,7 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
         lv = (ListView)findViewById(R.id.listView);
         adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_list_item_1);
         lv.setAdapter(adapter);
+        getLoaderManager().restartLoader(0, null, this);
     }
 
 
@@ -54,14 +56,24 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
         TextView text = (TextView)findViewById(R.id.editTextChannel);
         String s = text.getText().toString();
         text.setText("");
-        adapter.add(new Channel(s, s));
-        Log.d("", s + ": " + Integer.toString(adapter.getCount()));
+
+        Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.CHANNELS_TABLE_NAME);
+        ContentValues cv = new ContentValues();
+        cv.put("title", s);
+        cv.put("link", s);
+        Log.i("", "start, " + cv.toString());
+        Uri u = getContentResolver().insert(uri, cv);
+        Log.i("", u.toString());
+        //provider.insert(uri, cv);
+        /*adapter.add(new Channel(s, s));
+        Log.d("", s + ": " + Integer.toString(adapter.getCount()));*/
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri base = Uri.parse("content://" + RSSContentProvider.AUTHORITY);
         Uri uri = Uri.withAppendedPath(base, DatabaseHelper.CHANNELS_TABLE_NAME);
+        Log.i("", "start: " + uri.toString());
         return new CursorLoader(this, uri, null, null, null, null);
     }
 
