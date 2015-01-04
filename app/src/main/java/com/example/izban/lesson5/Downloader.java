@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 public class Downloader extends AsyncTask<URL, Void, Void> {
     Context context;
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Item> adapter;
     XmlPullParser parser;
     ListView lv;
     boolean failed;
@@ -32,7 +32,7 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
     Downloader(Context context, ListView lv) {
         this.context = context;
         this.lv = lv;
-        this.adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1);
+        this.adapter = new ArrayAdapter<Item>(context, android.R.layout.simple_list_item_1);
         this.failed = false;
     }
 
@@ -56,7 +56,7 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
             adapter.clear();
             ArrayList<Item> items = new Parser(parser).parse();
             for (int i = 0; i < items.size(); i++) {
-                adapter.add(items.get(i).link + "\n" + items.get(i).title + "\n" + Html.fromHtml(items.get(i).description).toString() + "\n\n");
+                adapter.add(items.get(i));
             }
             if (adapter.isEmpty()) {
                 throw new Exception();

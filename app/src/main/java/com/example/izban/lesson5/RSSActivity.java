@@ -17,7 +17,7 @@ import java.net.URL;
 
 public class RSSActivity extends Activity {
     ListView lv;
-    ArrayAdapter<String> adapter;
+    ArrayAdapter<Item> adapter;
     URL url;
 
     @Override
@@ -25,15 +25,13 @@ public class RSSActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rss);
         final Intent intent = new Intent(this, WebActivity.class);
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_1);
         lv = (ListView)findViewById(R.id.listView);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String s = ((ArrayAdapter<String>)parent.getAdapter()).getItem(position);
-                int k = s.indexOf('\n');
-                String url = s.substring(0, k);
-                intent.putExtra("url", url);
+                Item it = ((ArrayAdapter<Item>)parent.getAdapter()).getItem(position);
+                intent.putExtra("url", it.link);
                 startActivity(intent);
             }
         });
