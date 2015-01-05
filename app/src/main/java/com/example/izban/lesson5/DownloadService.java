@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Xml;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 public class DownloadService extends IntentService {
     XmlPullParser parser;
     URL url;
+    static Handler handler;
 
     public DownloadService() {
         super("DownloadService");
@@ -69,7 +71,8 @@ public class DownloadService extends IntentService {
                 cursor.close();
             }
         } catch (Exception e) {
-            //Toast.makeText(getContext(), "network error or not RSS page", Toast.LENGTH_SHORT).show();
+            // bad url
+            handler.obtainMessage(1).sendToTarget();
         }
         Log.i("", "end service");
     }

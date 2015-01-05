@@ -22,11 +22,9 @@ import android.widget.Toast;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
 public class ChannelActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     ListView lv;
     ArrayAdapter<Channel> adapter;
-    //RSSContentProvider provider = new RSSContentProvider();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +37,7 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Channel channel = ((ArrayAdapter<Channel>)parent.getAdapter()).getItem(position);
+                Channel channel = ((ArrayAdapter<Channel>) parent.getAdapter()).getItem(position);
                 intent.putExtra(DatabaseHelper.CHANNELS_LINK, channel.link);
                 startActivity(intent);
             }
@@ -71,6 +69,15 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
         TextView text = (TextView)findViewById(R.id.editTextChannel);
         String s = text.getText().toString();
         text.setText("");
+
+        // for debug
+        if (s.equals("bash")) {
+            s = "http://bash.im/rss";
+        } else if (s.equals("msk")) {
+            s = "http://echo.msk.ru/interview/rss-fulltext.xml";
+        } else if (s.equals("vedomosti")) {
+            s = "http://vedomosti.ru/rss/themes/politics.xml";
+        }
 
         try {
             new URL(s);
