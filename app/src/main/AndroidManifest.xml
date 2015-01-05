@@ -33,6 +33,9 @@
         <service
             android:name=".DownloadService" >
         </service>
+        <service
+            android:name=".ChannelService" >
+        </service>
     </application>
 
 </manifest>

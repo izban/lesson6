@@ -2,7 +2,7 @@ package com.example.izban.lesson5;
 
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -25,11 +25,13 @@ import java.net.URL;
 public class ChannelActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
     ListView lv;
     ArrayAdapter<Channel> adapter;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel);
+        context = this;
         lv = (ListView)findViewById(R.id.listView);
         final Intent intent = new Intent(this, RSSActivity.class);
         adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_list_item_1);
@@ -40,6 +42,15 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
                 Channel channel = ((ArrayAdapter<Channel>) parent.getAdapter()).getItem(position);
                 intent.putExtra(DatabaseHelper.CHANNELS_LINK, channel.link);
                 startActivity(intent);
+            }
+        });
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Channel channel = ((ArrayAdapter<Channel>) parent.getAdapter()).getItem(position);
+                startService(new Intent(context, ChannelService.class).putExtra("link", channel.link).putExtra("action", "delete"));
+                return true;
             }
         });
         getLoaderManager().restartLoader(0, null, this);
@@ -86,11 +97,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
             return;
         }
 
-        Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.CHANNELS_TABLE_NAME);
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.CHANNELS_TITLE, s);
-        cv.put(DatabaseHelper.CHANNELS_LINK, s);
-        Uri u = getContentResolver().insert(uri, cv);
+        Log.i("", "try to start service");
+        startService(new Intent(this, ChannelService.class).putExtra("link", s).putExtra("action", "add"));
     }
 
     @Override

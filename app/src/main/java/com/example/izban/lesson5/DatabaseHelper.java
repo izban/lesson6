@@ -15,12 +15,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String CHANNELS_TABLE_NAME = "channels";
     public static final String CHANNELS_ID = "_ID";
-    public static final String CHANNELS_TITLE = "title";
     public static final String CHANNELS_LINK = "link";
     public static final String CHANNELS_CREATE =
             "CREATE TABLE " + CHANNELS_TABLE_NAME + " (" +
             CHANNELS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            CHANNELS_TITLE + " TEXT, " +
             CHANNELS_LINK + " TEXT)";
 
     public static final String ITEMS_TABLE_NAME = "items";
