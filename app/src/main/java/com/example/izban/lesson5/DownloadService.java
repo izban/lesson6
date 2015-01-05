@@ -1,16 +1,12 @@
 package com.example.izban.lesson5;
 
-import android.app.Activity;
+import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.text.Html;
 import android.util.Log;
 import android.util.Xml;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -24,19 +20,12 @@ import java.util.ArrayList;
 /**
  * Created by izban on 20.10.14.
  */
-public class Downloader extends AsyncTask<URL, Void, Void> {
-    Context context;
+public class DownloadService extends IntentService {
     XmlPullParser parser;
-    ListView lv;
-    boolean failed;
     URL url;
-    String channel;
 
-    Downloader(Context context, ListView lv, String channel) {
-        this.context = context;
-        this.lv = lv;
-        this.failed = false;
-        this.channel = channel;
+    public DownloadService() {
+        super("DownloadService");
     }
 
     void download() throws IOException, XmlPullParserException {
@@ -50,10 +39,11 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(URL... params) {
-        this.url = params[0];
-        Log.i("", "START");
+    protected void onHandleIntent(Intent intent) {
+        Channel channel = new Channel(intent.getStringExtra("link"));
+        Log.i("", "start service");
         try {
+            url = new URL(channel.toString());
             download();
             ArrayList<Item> items = new Parser(parser).parse();
             if (items.isEmpty()) {
@@ -61,7 +51,7 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
             }
 
             for (int i = 0; i < items.size(); i++) {
-                items.get(i).channel = channel;
+                items.get(i).channel = channel.toString();
                 Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.ITEMS_TABLE_NAME);
                 ContentValues cv = new ContentValues();
                 cv.put(DatabaseHelper.ITEMS_LINK, items.get(i).link);
@@ -69,29 +59,18 @@ public class Downloader extends AsyncTask<URL, Void, Void> {
                 cv.put(DatabaseHelper.ITEMS_DESCRIPTION, items.get(i).description);
                 cv.put(DatabaseHelper.ITEMS_CHANNEL, items.get(i).channel);
                 cv.put(DatabaseHelper.ITEMS_TIME, Long.toString(items.get(i).time));
-                Log.i("", cv.toString());
-                if (context.getContentResolver().query(uri, null, DatabaseHelper.ITEMS_LINK + " = \"" + items.get(i).link + "\"", null, null).getCount() == 0) {
-                    Uri u = context.getContentResolver().insert(uri, cv);
+                Cursor cursor = getContentResolver().query(uri, null, DatabaseHelper.ITEMS_LINK + " = \"" + items.get(i).link + "\"", null, null);
+                if (cursor.getCount() == 0) {
+                    Uri u = getContentResolver().insert(uri, cv);
                     Log.i("", u.toString());
                 } else {
                     Log.i("", "already was");
                 }
+                cursor.close();
             }
         } catch (Exception e) {
-            failed = true;
-            Log.i("", e.getMessage());
+            //Toast.makeText(getContext(), "network error or not RSS page", Toast.LENGTH_SHORT).show();
         }
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-        if (failed) {
-            Toast.makeText(context, "network error or not RSS page", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.i("", "OK");
-        }
-
+        Log.i("", "end service");
     }
 }

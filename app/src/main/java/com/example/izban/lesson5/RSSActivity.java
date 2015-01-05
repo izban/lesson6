@@ -75,7 +75,8 @@ public class RSSActivity extends Activity implements LoaderManager.LoaderCallbac
     }
 
     public void onButton1Click(View view) {
-        new Downloader(this, lv, channel).execute(url);
+        startService(new Intent(this, DownloadService.class).putExtra("link", channel));
+        //new Downloader(this, lv, channel).execute(url);
     }
 
     @Override

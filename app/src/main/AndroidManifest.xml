@@ -30,6 +30,9 @@
             android:authorities="com.example.izban.lesson5.RSSContentProvider"
             android:name=".RSSContentProvider" >
         </provider>
+        <service
+            android:name=".DownloadService" >
+        </service>
     </application>
 
 </manifest>
