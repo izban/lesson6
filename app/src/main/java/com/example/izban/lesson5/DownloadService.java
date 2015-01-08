@@ -7,47 +7,26 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
-import android.util.Xml;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
  * Created by izban on 20.10.14.
  */
 public class DownloadService extends IntentService {
-    XmlPullParser parser;
-    URL url;
     static Handler handler;
 
     public DownloadService() {
         super("DownloadService");
     }
 
-    void download() throws IOException, XmlPullParserException {
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.connect();
-        InputStream is = connection.getInputStream();
-        parser = Xml.newPullParser();
-        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-        parser.setInput(is, null);
-    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         Channel channel = new Channel(intent.getStringExtra("link"));
         Log.i("", "start service");
         try {
-            url = new URL(channel.toString());
-            download();
-            ArrayList<Item> items = new Parser(parser).parse();
+            ArrayList<Item> items = Parser.parse(channel);
             if (items.isEmpty()) {
                 throw new Exception();
             }

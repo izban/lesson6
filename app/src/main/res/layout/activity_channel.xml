@@ -27,23 +27,17 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:text="do a long click on channel to delete it or press the button"
-            android:id="@+id/textView"
-            android:enabled="true"
-            android:layout_weight="1"
-            android:singleLine="false" />
+        android:layout_height="wrap_content"
+        android:gravity="right">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Clear all cache"
             android:id="@+id/buttonClearAll"
-            android:onClick="onButtonClearAllClick" />
+            android:onClick="onButtonClearAllClick"
+            android:layout_gravity="right"
+            android:gravity="right" />
 
     </LinearLayout>
 

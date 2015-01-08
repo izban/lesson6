@@ -1,22 +1,96 @@
 package com.example.izban.lesson5;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import android.util.Log;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.StringTokenizer;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 /**
  * Created by izban on 20.10.14.
  */
-public class Parser {
-    XmlPullParser parser;
+public class Parser extends DefaultHandler {
+    String channel;
+    StringBuilder curText;
+    Item curItem = new Item();
+    ArrayList<Item> items = new ArrayList<Item>();
     Random rng = new Random(58);
 
-    Parser(XmlPullParser parser) {
-        this.parser = parser;
+    Parser(String channel) {
+        this.channel = channel;
+    }
+
+    static ArrayList<Item> parse(Channel channel) {
+        Log.i("", "starting parse " + channel);
+        Parser parser = new Parser(channel.link);
+        try {
+            URL url = new URL(channel.link);
+            InputStream inputStream = url.openStream();
+            XMLReader reader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
+            reader.setContentHandler(parser);
+            reader.parse(new InputSource(inputStream));
+            Log.i("", "parsed ok");
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.i("", String.format("parsed %d items", parser.items.size()));
+        return parser.items;
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        Log.i("", "I am alive");
+        super.startElement(uri, localName, qName, attributes);
+
+        curText = new StringBuilder();
+
+        if (qName.equals("item")) {
+            curItem = new Item();
+            curItem.channel = channel;
+        }
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        Log.i("", "~I am alive");
+        super.endElement(uri, localName, qName);
+        Log.i("", "~~I am alive");
+
+        if (qName.equals("item")) {
+            items.add(curItem);
+        } else if (qName.equals("title")) {
+            curItem.title = curText.toString();
+        } else if (qName.equals("link")) {
+            curItem.link = curText.toString();
+        } else if (qName.equals("description")) {
+            curItem.description = curText.toString();
+        } else if (qName.equals("pubDate")) {
+            curItem.time = parseDate(curText.toString());
+        }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        Log.i("", "I am living");
+        super.characters(ch, start, length);
+
+        curText.append(ch, start, length);
     }
 
     // sorry, I don't know what format is it
@@ -29,7 +103,7 @@ public class Parser {
         return 0;
     }
 
-    Long parse(String s) {
+    Long parseDate(String s) {
         StringTokenizer st = new StringTokenizer(s);
         if (st.countTokens() != 6) {
             return rng.nextLong();
@@ -52,45 +126,5 @@ public class Parser {
         ans *= 60;
         ans += (a[4].charAt(6) - '0') * 10 + (a[4].charAt(7) - '0');
         return ans;
-    }
-
-    Item parseItem() throws IOException, XmlPullParserException {
-        Item res = new Item();
-        while (parser.next() != XmlPullParser.END_TAG || !parser.getName().equals("item")) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String tag = parser.getName();
-            if (tag.equals("link")) {
-                parser.next();
-                res.link = parser.getText();
-                parser.next();
-            } else if (tag.equals("title")) {
-                parser.next();
-                res.title = parser.getText();
-                parser.next();
-            } else if (tag.equals("description")) {
-                while (parser.next() != XmlPullParser.END_TAG || !parser.getName().equals("description")) {
-                    if (parser.getEventType() == XmlPullParser.TEXT) {
-                        res.description += parser.getText();
-                    }
-                }
-            } else if (tag.equals("pubDate")) {
-                parser.next();
-                res.time = parse(parser.getText()); // ATTENTION, ATTENTION
-                parser.next();
-            }
-        }
-        return res;
-    }
-
-    ArrayList<Item> parse() throws IOException, XmlPullParserException {
-        ArrayList<Item> result = new ArrayList<Item>();
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equals("item")) {
-                result.add(parseItem());
-            }
-        }
-        return result;
     }
 }

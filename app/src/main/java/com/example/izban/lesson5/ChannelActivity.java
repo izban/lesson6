@@ -88,6 +88,8 @@ public class ChannelActivity extends Activity implements LoaderManager.LoaderCal
             s = "http://echo.msk.ru/interview/rss-fulltext.xml";
         } else if (s.equals("vedomosti")) {
             s = "http://vedomosti.ru/rss/themes/politics.xml";
+        }  else if (s.equals("lenta")) {
+            s = "http://lenta.ru/rss/top7";
         }
 
         try {
