@@ -24,6 +24,7 @@ public class ChannelService extends IntentService {
             ContentValues cv = new ContentValues();
             cv.put(DatabaseHelper.CHANNELS_LINK, link);
             getContentResolver().insert(uri, cv);
+            startService(new Intent(this, DownloadService.class).putExtra("link", link));
         } else if (action.equals("delete")) {
             Uri uri = Uri.parse("content://" + RSSContentProvider.AUTHORITY + "/" + DatabaseHelper.CHANNELS_TABLE_NAME);
             getContentResolver().delete(uri, DatabaseHelper.CHANNELS_LINK + " = \"" + link + "\"", null);
